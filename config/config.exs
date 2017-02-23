@@ -2,6 +2,15 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :conserva, Conserva.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: "conserva_db",
+  username: "conserva_user",
+  password: "42",
+  hostname: "localhost"
+config :conserva, ecto_repos: [Conserva.Repo]  
+
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
