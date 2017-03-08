@@ -15,10 +15,14 @@ defmodule Conserva.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :ecto, :postgrex]]
+    [
+      extra_applications: [:logger],
+      mod: {Conserva.Application, []}
+    ]
   end
 
   # Dependencies can be Hex packages:
+  #
   #
   #   {:my_dep, "~> 0.3.0"}
   #
@@ -30,7 +34,9 @@ defmodule Conserva.Mixfile do
   defp deps do
     [
       {:ecto, "~> 2.1"},
-      {:postgrex, "~> 0.13.1"}
+      {:postgrex, "~> 0.13.1"},
+      {:plug, "~> 1.0"},
+      {:cowboy, "~> 1.0.0"}
     ]
   end
 end

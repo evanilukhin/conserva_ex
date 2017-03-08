@@ -21,3 +21,5 @@ erl_crash.dump
 
 # Configurations
 /config/config.exs
+.idea/
+priv/static/
