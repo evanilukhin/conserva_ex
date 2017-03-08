@@ -3,7 +3,8 @@ defmodule Conserva.Router do
   plug :match
   plug :dispatch
 
-  get "/hello" do
+  get "/hello/:word" do
+    GenServer.cast(TaskProcessor, {:push, word})
     send_resp(conn, 200, "world")
   end
 
