@@ -7,7 +7,7 @@ defmodule Conserva.Application do
     children = [
           # Define workers and child supervisors to be supervised
           Plug.Adapters.Cowboy.child_spec(:http, Conserva.Router, [], [port: 4001]),
-          worker(Conserva.TaskProcessor, [[:hello],[name: Conserva.TaskProcessor]])
+          supervisor(Conserva.TaskProcessor.Supervisor, [[name: Conserva.TaskProcessor.Supervisor]])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
