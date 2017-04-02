@@ -6,7 +6,7 @@ defmodule Conserva.Application do
   def start(_type, _args) do
     children = [
           # Define workers and child supervisors to be supervised
-          Plug.Adapters.Cowboy.child_spec(:http, Conserva.Router, [], [port: 4001]),
+          Plug.Adapters.Cowboy.child_spec(:http, Conserva.Router, [], [port: 4001, protocol_options: [max_request_line_length: 10000000, max_header_value_length: 1024102]]),
           supervisor(Conserva.TaskProcessor.Supervisor, [[name: Conserva.TaskProcessor.Supervisor]]),
           supervisor(Conserva.Repo,[])
     ]
