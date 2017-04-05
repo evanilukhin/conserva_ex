@@ -36,7 +36,8 @@ defmodule Conserva.Mixfile do
       {:ecto, "~> 2.1"},
       {:postgrex, "~> 0.13.1"},
       {:plug, "~> 1.0"},
-      {:cowboy, "~> 1.0.0"}
+      {:cowboy, "~> 1.0.0"},
+      {:poison, "~> 3.0"}
     ]
   end
 end

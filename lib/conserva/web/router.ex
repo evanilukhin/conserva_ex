@@ -1,21 +1,15 @@
 defmodule Conserva.Router do
   use Plug.Router
-  plug :autorization
+  plug Conserva.Plug.Auth
   plug :match
   plug :dispatch
   plug Plug.Parsers, parsers: [:multipart]
-  require IEx
-  import Ecto.Query
-  alias Conserva.{Repo, ApiKey, ConvertTask}
-
-  plug Plug.Parsers, parsers: [:multipart]
 
   get "/api/v1/task/:id" do
-    send_resp(conn, 200, "get task #{id}")
-  end
-
-  get "/api/v1/async_convert" do
-    send_resp(conn, 200, "async_convert")
+    case Conserva.ConvertTask.RepoInteraction.get_task_info_by_id(id) do
+      :nil -> send_resp(conn, 404, '')
+      task_info -> send_resp(conn, 200, Poison.encode!(task_info))
+    end
   end
 
   post "/api/v1/task" do
@@ -29,26 +23,11 @@ defmodule Conserva.Router do
   end
 
   delete "/api/v1/task/:id" do
-    send_resp(conn, 200, "delete task #{id}")
+    send_resp(conn, 200, "delete task #{id} stub")
   end
 
   get "/api/v1/convert_combinations" do
-    send_resp(conn, 200, "convert_combinations")
-  end
-
-  defp autorization(conn, opts) do
-    api_key = Plug.Conn.fetch_query_params(conn).params |> Map.get("api_key")
-    case Ecto.UUID.cast(api_key) do
-      {:ok, uuid} -> set_api_key_id(conn, uuid)
-      :error -> send_resp(conn, 403, '') |> halt
-    end
-  end
-
-  defp set_api_key_id(conn, uuid) do
-    case Repo.one(from key in ApiKey, where: key.uuid == ^uuid, select: %{id: key.id}) do
-      %{id: id} -> assign(conn, :api_key_id, id)
-      :nil -> send_resp(conn, 403, '') |> halt
-    end
+    send_resp(conn, 200, "convert_combinations_stub")
   end
 
   match _ do
