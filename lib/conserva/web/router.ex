@@ -1,9 +1,13 @@
 defmodule Conserva.Router do
   use Plug.Router
+
+  plug Plug.Parsers, parsers: [:multipart], pass: ["*/*"], length: Application.fetch_env!(:conserva, :max_file_size)
   plug Conserva.Plug.Auth
+  plug Conserva.Plug.NewTaskFetcher, paths: ["post /api/v1/task"]
   plug :match
   plug :dispatch
-  plug Plug.Parsers, parsers: [:multipart]
+
+  require IEx
 
   get "/api/v1/task/:id" do
     case Conserva.ConvertTask.RepoInteraction.get_task_info_by_id(id) do
@@ -13,13 +17,13 @@ defmodule Conserva.Router do
   end
 
   post "/api/v1/task" do
-    {_, body, conn} = Plug.Conn.read_body(conn, length: Application.fetch_env!(:conserva, :max_file_size))
-    input_extension = Plug.Conn.fetch_query_params(conn).params |> Map.get("input_extension")
-    file_name = Integer.to_string(:os.system_time ) <> ".#{input_extension}"
-    {:ok, file} ="#{Application.fetch_env!(:conserva, :file_storage_path)}/#{file_name}" |> File.open([:write])
-    IO.binwrite file, body
-    File.close file
-    send_resp(conn, 200, "post task")
+    case Conserva.ConvertTask.RepoInteraction.create_new_task(conn.assigns[:changeset]) do
+      {:ok, saved_task} ->
+        send_resp(conn, 200, "#{saved_task.id}")
+      {:error, unsaved_task} ->
+        File.rm(conn.assigns[:potential_file_path])
+        send_resp(conn, 422, "")
+    end
   end
 
   delete "/api/v1/task/:id" do

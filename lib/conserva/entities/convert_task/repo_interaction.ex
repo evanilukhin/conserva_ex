@@ -24,4 +24,9 @@ defmodule Conserva.ConvertTask.RepoInteraction do
                        errors: key.errors,
                      })
   end
+
+  def create_new_task(raw_task) do
+    inserted_task = Map.put(raw_task, :created_at, Ecto.DateTime.from_erl(:calendar.universal_time())) |> Map.put(:state, "received")
+    Repo.insert(inserted_task)
+  end
 end
