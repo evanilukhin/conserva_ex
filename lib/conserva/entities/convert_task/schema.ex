@@ -1,5 +1,6 @@
 defmodule Conserva.ConvertTask do
   use Ecto.Schema
+  import Ecto.Changeset
 
   schema "convert_tasks" do
     field :state, :string
@@ -16,7 +17,12 @@ defmodule Conserva.ConvertTask do
     field :source_file_sha256, :string, size: 64
     field :result_file_sha256, :string, size: 64
     field :downloads_count, :integer, default: 0
-    field :last_download_time, :utc_datetime
+    field :last_download_time, Ecto.DateTime
     belongs_to :api_key, Conserva.ApiKey
+  end
+
+  def changeset(task, params \\ %{}) do
+    task
+    |> cast(params, [:downloads_count, :last_download_time])
   end
 end
