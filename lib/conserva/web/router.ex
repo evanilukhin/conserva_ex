@@ -7,17 +7,46 @@ defmodule Conserva.Router do
   plug :match
   plug :dispatch
 
+  alias Conserva.ConvertTask
+
   require IEx
 
   get "/api/v1/task/:id" do
-    case Conserva.ConvertTask.RepoInteraction.get_task_info_by_id(id) do
+    case ConvertTask.RepoInteraction.get_info_by_id(id) do
       :nil -> send_resp(conn, 404, '')
       task_info -> send_resp(conn, 200, Poison.encode!(task_info))
     end
   end
 
+  get "/api/v1/task/:id/download" do
+    case ConvertTask.RepoInteraction.get_by_id(id) do
+      :nil -> send_resp(conn, 404, "")
+      task -> download_task(conn, task)
+    end
+  end
+
+  def try_download_task(conn,task) do
+    cond do
+      task.state == 'finished' -> download_task(conn, task)
+      true -> send_resp(conn, 202, "")
+    end
+  end
+
+  def download_task(conn, task) do
+    file_name = task.converted_file
+    change_params = %{downloads_count: task.downloads_count + 1, last_download_time: Ecto.DateTime.from_erl(:calendar.universal_time())}
+    changes = ConvertTask.changeset(task, change_params)
+    case Conserva.Repo.update(changes) do
+      {:ok, task} ->
+        conn |>
+        put_resp_header("Content-Disposition", "filename=\"#{file_name}\"") |>
+        send_file(200, "#{Application.fetch_env!(:conserva, :file_storage_path)}/#{task.converted_file}")
+      {:error, changes} -> send_resp(conn, 500, "Failed to update state")
+    end
+  end
+
   post "/api/v1/task" do
-    case Conserva.ConvertTask.RepoInteraction.create_new_task(conn.assigns[:changeset]) do
+    case ConvertTask.RepoInteraction.create_new_task(conn.assigns[:changeset]) do
       {:ok, saved_task} ->
         send_resp(conn, 200, "#{saved_task.id}")
       {:error, unsaved_task} ->
@@ -27,7 +56,27 @@ defmodule Conserva.Router do
   end
 
   delete "/api/v1/task/:id" do
-    send_resp(conn, 200, "delete task #{id} stub")
+    case ConvertTask.RepoInteraction.get_by_id(id) do
+      :nil -> send_resp(conn, 404, "")
+      task -> try_delete_task(conn, task)
+    end
+  end
+
+  def try_delete_task(conn, task) do
+    cond do
+      task.state == "process" -> send_resp(conn, 423, "")
+      true -> delete_task(conn, task)
+    end
+  end
+
+  def delete_task(conn, task) do
+    case ConvertTask.RepoInteraction.delete(task) do
+      {:ok, task} ->
+        File.rm("#{Application.fetch_env!(:conserva, :file_storage_path)}/#{task.source_file}")
+        File.rm("#{Application.fetch_env!(:conserva, :file_storage_path)}/#{task.converted_file}")
+        send_resp(conn, 200, "")
+      {:error, _} -> send_resp(conn, 500, "Error on deleting task")
+    end
   end
 
   get "/api/v1/convert_combinations" do
