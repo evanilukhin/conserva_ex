@@ -37,7 +37,8 @@ defmodule Conserva.Mixfile do
       {:postgrex, "~> 0.13.1"},
       {:plug, "~> 1.0"},
       {:cowboy, "~> 1.0.0"},
-      {:poison, "~> 3.0"}
+      {:poison, "~> 3.0"},
+      {:yaml_elixir, "~> 1.3"}
     ]
   end
 end

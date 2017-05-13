@@ -1,0 +1,5 @@
+name: image_magic_converter
+max_workers_count: 20
+from_ext: [jpg, png, gif]
+to_ext; [jpg, png, gif, pdf]
+launch_string: magick #{from_full_path} #{to_full_path}

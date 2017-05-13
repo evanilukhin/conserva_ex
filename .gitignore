@@ -23,3 +23,5 @@ erl_crash.dump
 /config/config.exs
 .idea/
 priv/static/
+
+/converters/*.yaml

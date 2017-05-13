@@ -10,9 +10,9 @@ defmodule Conserva.ConvertTask do
     field :converted_file, :string
     field :input_extension, :string
     field :output_extension, :string
-    field :created_at, :utc_datetime
-    field :updated_at, :utc_datetime
-    field :finished_at, :utc_datetime
+    field :created_at, Ecto.DateTime
+    field :updated_at, Ecto.DateTime
+    field :finished_at, Ecto.DateTime
     field :errors, :string
     field :source_file_sha256, :string, size: 64
     field :result_file_sha256, :string, size: 64
@@ -23,6 +23,14 @@ defmodule Conserva.ConvertTask do
 
   def changeset(task, params \\ %{}) do
     task
-    |> cast(params, [:downloads_count, :last_download_time])
+    |> cast(params, [:downloads_count,
+                     :last_download_time,
+                     :result_filename,
+                     :converted_file,
+                     :updated_at,
+                     :finished_at,
+                     :errors,
+                     :result_file_sha256,
+                     :state])
   end
 end

@@ -9,6 +9,10 @@ config :conserva, Conserva.Repo,
   password: "42",
   hostname: "localhost"
 config :conserva, ecto_repos: [Conserva.Repo]
+config :conserva,
+  file_storage_path: "/home/example/file_storage",
+  max_file_size: 1_000_000_000
+
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

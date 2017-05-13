@@ -32,7 +32,8 @@ defmodule Conserva.ConvertTask.RepoInteraction do
   end
 
   def create_new_task(raw_task) do
-    inserted_task = Map.put(raw_task, :created_at, Ecto.DateTime.from_erl(:calendar.universal_time())) |> Map.put(:state, "received")
+    inserted_task = Map.merge(raw_task, %{created_at: Ecto.DateTime.utc,
+                                          state: "received"})
     Repo.insert(inserted_task)
   end
 

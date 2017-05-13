@@ -25,23 +25,23 @@ defmodule Conserva.Router do
     end
   end
 
-  def try_download_task(conn,task) do
+  defp try_download_task(conn,task) do
     cond do
       task.state == 'finished' -> download_task(conn, task)
       true -> send_resp(conn, 202, "")
     end
   end
 
-  def download_task(conn, task) do
+  defp download_task(conn, task) do
     file_name = task.converted_file
-    change_params = %{downloads_count: task.downloads_count + 1, last_download_time: Ecto.DateTime.from_erl(:calendar.universal_time())}
+    change_params = %{downloads_count: task.downloads_count + 1, last_download_time: Ecto.DateTime.utc}
     changes = ConvertTask.changeset(task, change_params)
     case Conserva.Repo.update(changes) do
       {:ok, task} ->
         conn |>
         put_resp_header("Content-Disposition", "filename=\"#{file_name}\"") |>
         send_file(200, "#{Application.fetch_env!(:conserva, :file_storage_path)}/#{task.converted_file}")
-      {:error, changes} -> send_resp(conn, 500, "Failed to update state")
+      {:error, _changes} -> send_resp(conn, 500, "Failed to update state")
     end
   end
 
@@ -49,7 +49,7 @@ defmodule Conserva.Router do
     case ConvertTask.RepoInteraction.create_new_task(conn.assigns[:changeset]) do
       {:ok, saved_task} ->
         send_resp(conn, 200, "#{saved_task.id}")
-      {:error, unsaved_task} ->
+      {:error, _unsaved_task} ->
         File.rm(conn.assigns[:potential_file_path])
         send_resp(conn, 422, "")
     end
