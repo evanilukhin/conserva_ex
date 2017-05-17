@@ -10,7 +10,12 @@ defmodule Conserva.ConvertersSupervisor do
   end
 
   defp childrens do
-    converters = ConvertersInfoServer.get_converters
-    []
+    converters = GenServer.call(ConvertersInfoServer, :get_converters)
+    for converter <- converters do
+      worker(Conserva.ConverterServer, [[converter: converter,
+                                         active_processors_count: 0,
+                                         task_queue: []], [name: converter.name]],
+                                       [id: converter.name])
+    end
   end
 end

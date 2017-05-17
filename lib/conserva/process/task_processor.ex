@@ -4,6 +4,7 @@ defmodule Conserva.TaskProcessor do
     |> substitute_params
     |> launch
     |> commit_result
+    GenServer.cast(converter.name, :free_worker)
   end
 
   defp build_parameters(task, converter) do
@@ -33,6 +34,7 @@ defmodule Conserva.TaskProcessor do
   end
 
   defp launch(params) do
+    IO.inspect(params)
     result_string = :os.cmd(String.to_charlist(params.launch_string))
     if File.exists? params.full_result_path do
       result_file_sha256 =

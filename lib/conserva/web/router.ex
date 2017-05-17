@@ -20,14 +20,14 @@ defmodule Conserva.Router do
 
   get "/api/v1/task/:id/download" do
     case ConvertTask.RepoInteraction.get_by_id(id) do
-      :nil -> send_resp(conn, 404, "")
-      task -> download_task(conn, task)
+      :nil -> send_resp(conn, 404, "Task does not exist")
+      task -> try_download_task(conn,task)
     end
   end
 
-  defp try_download_task(conn,task) do
+  defp try_download_task(conn, task) do
     cond do
-      task.state == 'finished' -> download_task(conn, task)
+      task.state == "finished" -> download_task(conn, task)
       true -> send_resp(conn, 202, "")
     end
   end
@@ -48,6 +48,7 @@ defmodule Conserva.Router do
   post "/api/v1/task" do
     case ConvertTask.RepoInteraction.create_new_task(conn.assigns[:changeset]) do
       {:ok, saved_task} ->
+        Conserva.TaskDistributor.add_to_queue(saved_task)
         send_resp(conn, 200, "#{saved_task.id}")
       {:error, _unsaved_task} ->
         File.rm(conn.assigns[:potential_file_path])
