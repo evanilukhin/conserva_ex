@@ -37,6 +37,33 @@ defmodule Conserva.ConvertTask.RepoInteraction do
     Repo.insert(inserted_task)
   end
 
+  def get_unconverted_tasks(created_at_order \\ :asc) do
+    query =
+      from task in ConvertTask,
+        where: task.state != "finished",
+        order_by: [{^created_at_order, task.created_at}]
+    Repo.all(query)
+  end
+
+  def get_unconverted_tasks_for_converter(converter, created_at_order \\ :asc) do
+    query =
+      from task in ConvertTask,
+        where: task.state != "finished" and
+               task.input_extension in ^converter.from_ext and
+               task.output_extension in ^converter.to_ext,
+        order_by: [{^created_at_order, task.created_at}]
+    Repo.all(query)
+  end
+
+  def set_state(task, state) do
+    changes = %{
+      state: state,
+      updated_at: Ecto.DateTime.utc
+    }
+    changeset = ConvertTask.changeset(task, changes)
+    Repo.update(changeset)
+  end
+
   def delete(task) do
     Repo.delete(task)
   end

@@ -1,5 +1,6 @@
 defmodule Conserva.ConvertersSupervisor do
   use Supervisor
+  require IEx
 
   def start_link(options) do
     Supervisor.start_link(__MODULE__,[], options)
@@ -12,9 +13,7 @@ defmodule Conserva.ConvertersSupervisor do
   defp childrens do
     converters = GenServer.call(ConvertersInfoServer, :get_converters)
     for converter <- converters do
-      worker(Conserva.ConverterServer, [[converter: converter,
-                                         active_processors_count: 0,
-                                         task_queue: []], [name: converter.name]],
+      worker(Conserva.ConverterServer, [%{converter: converter}, [name: converter.name]],
                                        [id: converter.name])
     end
   end

@@ -81,7 +81,7 @@ defmodule Conserva.Router do
   end
 
   get "/api/v1/convert_combinations" do
-    send_resp(conn, 200, "convert_combinations_stub")
+    send_resp(conn, 200, Poison.encode!(GenServer.call(ConvertersInfoServer, :get_convert_combinations)))
   end
 
   match _ do
