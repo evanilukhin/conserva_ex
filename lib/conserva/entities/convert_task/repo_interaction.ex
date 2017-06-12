@@ -55,6 +55,21 @@ defmodule Conserva.ConvertTask.RepoInteraction do
     Repo.all(query)
   end
 
+  def get_downloaded_tasks(before_date_time) do
+    query =
+      from task in ConvertTask,
+        where: task.downloads_count > 0 and
+               task.last_download_time < ^before_date_time
+    Repo.all(query)
+  end
+
+  def get_outdated_tasks(before_date_time) do
+    query =
+      from task in ConvertTask,
+        where: task.created_at < ^before_date_time
+    Repo.all(query)
+  end
+
   def set_state(task, state) do
     changes = %{
       state: state,
