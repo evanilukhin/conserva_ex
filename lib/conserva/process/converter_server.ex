@@ -1,6 +1,9 @@
 defmodule Conserva.ConverterServer do
+  require Logger
+
   use GenServer
   alias Conserva.{ConvertTask, TaskProcessor}
+
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
   end
@@ -10,6 +13,7 @@ defmodule Conserva.ConverterServer do
     new_state =
       Map.merge(state, %{task_queue: task_queue, active_processors_count: 0})
       |> start_processes()
+    Logger.info("Started GenServer for converter: #{state.converter.name}", subsystem: :converters)   
     {:ok, new_state}
   end
 
@@ -47,7 +51,7 @@ defmodule Conserva.ConverterServer do
 
   defp start_processes(state) do
     if state.active_processors_count < state.converter.max_workers_count &&
-       :queue.len(state.task_queue) > 0 do
+      :queue.len(state.task_queue) > 0 do
       new_active_workers = state.active_processors_count + 1
       {{:value, converting_task}, new_queue} = :queue.out(state.task_queue)
       launch_process(converting_task, state.converter)

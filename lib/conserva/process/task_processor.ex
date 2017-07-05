@@ -1,4 +1,6 @@
 defmodule Conserva.TaskProcessor do
+  require Logger
+  
   def convert(task, converter) do
     build_parameters(task, converter)
     |> substitute_params
@@ -34,7 +36,7 @@ defmodule Conserva.TaskProcessor do
   end
 
   defp launch(params) do
-    IO.inspect(params)
+    Logger.info("Starting convert task #{params.task.id}", subsystem: :converters)
     result_string = :os.cmd(String.to_charlist(params.launch_string))
     if File.exists? params.full_result_path do
       result_file_sha256 =
@@ -42,8 +44,10 @@ defmodule Conserva.TaskProcessor do
         |> Enum.reduce(:crypto.hash_init(:sha256),fn(line, acc) -> :crypto.hash_update(acc,line) end )
         |> :crypto.hash_final
         |> Base.encode16
+      Logger.info("Succeed convert task #{params.task.id}", subsystem: :converters)
       {:ok, Map.put(params, :result_file_sha256, result_file_sha256)}
     else
+      Logger.error("Failed convert task #{params.task.id}, errors: #{result_string}", subsystem: :converters)
       {:error, Map.put(params, :error_output, result_string)}
     end
   end
@@ -71,6 +75,7 @@ defmodule Conserva.TaskProcessor do
       Conserva.Repo.update(changeset)
     else
       File.rm(params.full_result_path)
+      Logger.error("Failed update task #{params.task.id}, errors: #{changeset.errors}", subsystem: :converters)
       {:error, changeset.errors}
     end
   end
@@ -85,6 +90,7 @@ defmodule Conserva.TaskProcessor do
     if changeset.valid? do
       Conserva.Repo.update(changeset)
     else
+      Logger.error("Failed update task #{params.task.id}, errors: #{changeset.errors}", subsystem: :converters)
       {:error, changeset.errors}
     end
   end

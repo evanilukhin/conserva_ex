@@ -20,6 +20,7 @@ defmodule Conserva.Mixfile do
     [
       {:ecto, "~> 2.1"},
       {:postgrex, "~> 0.13.1"},
+      {:logger_file_backend, "~> 0.0.10"},
       {:plug, "~> 1.0"},
       {:cowboy, "~> 1.0.0"},
       {:poison, "~> 3.0"},

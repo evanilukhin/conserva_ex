@@ -1,42 +1,27 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
 config :conserva, Conserva.Repo,
   adapter: Ecto.Adapters.Postgres,
-  database: "conserva_db",
-  username: "conserva_user",
-  password: "42",
-  hostname: "localhost"
+  database: "db_name",
+  username: "db_user",
+  password: "db_password",
+  hostname: "db_host"
 config :conserva, ecto_repos: [Conserva.Repo]
 config :conserva,
-  file_storage_path: "/home/example/file_storage",
-  max_file_size: 1_000_000_000
+  file_storage_path: "/path/to/file_storage",
+  max_file_size: 1_000_000_000,
+  converters_dir: "/path/to/dir/with/converters/config" #examples this files stored in dir converters in project dir
 
+config :logger,
+  backends: [{LoggerFileBackend, :api},
+             {LoggerFileBackend, :converters}]
 
-# This configuration is loaded before any dependency and is restricted
-# to this project. If another project depends on this project, this
-# file won't be loaded nor affect the parent project. For this reason,
-# if you want to provide default values for your application for
-# 3rd-party users, it should be done in your "mix.exs" file.
+config :logger, :api,
+  path: "/path/to/api.log",
+  metadata_filter: [subsystem: :api],
+  level: :error
 
-# You can configure for your application as:
-#
-#     config :conserva, key: :value
-#
-# And access this configuration in your application as:
-#
-#     Application.get_env(:conserva, :key)
-#
-# Or configure a 3rd-party app:
-#
-#     config :logger, level: :info
-#
-
-# It is also possible to import configuration files, relative to this
-# directory. For example, you can emulate configuration per environment
-# by uncommenting the line below and defining dev.exs, test.exs and such.
-# Configuration from the imported file will override the ones defined
-# here (which is why it is important to import them last).
-#
-#     import_config "#{Mix.env}.exs"
+config :logger, :converters,
+  path: "/path/to/converters.log",
+  metadata_filter: [subsystem: :converters],
+  level: :error

@@ -1,6 +1,5 @@
 defmodule Conserva.ConvertersSupervisor do
   use Supervisor
-  require IEx
 
   def start_link(options) do
     Supervisor.start_link(__MODULE__,[], options)
