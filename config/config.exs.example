@@ -1,5 +1,6 @@
 use Mix.Config
 
+# Database connection (I beleve this part are sufficiently clear. If you have questions,please, create issue on github)
 config :conserva, Conserva.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "db_name",
@@ -7,21 +8,25 @@ config :conserva, Conserva.Repo,
   password: "db_password",
   hostname: "db_host"
 config :conserva, ecto_repos: [Conserva.Repo]
+
+# Conserva settings
 config :conserva,
-  file_storage_path: "/path/to/file_storage",
-  max_file_size: 1_000_000_000,
+  file_storage_path: "/path/to/file_storage", # place where stored converted and unconverted files. In DB stored only path inside this directory.
+  max_file_size: 1_000_000_000, # Max file size supported API in bytes
   converters_dir: "/path/to/dir/with/converters/config" #examples this files stored in dir converters in project dir
 
+# Loggers settings
+# At this moment, logs writes into files. This approach not recommended by "The twelve-factor app" manifest, which it turn advice print all logs into stdout, and agregate and process outside. 
 config :logger,
   backends: [{LoggerFileBackend, :api},
              {LoggerFileBackend, :converters}]
 
 config :logger, :api,
-  path: "/path/to/api.log",
+  path: "/path/to/api.log", # path to api log. Create before run application!
   metadata_filter: [subsystem: :api],
-  level: :error
+  level: :error # log lever, supported next levels [:debug, :info, :warn, :error]
 
 config :logger, :converters,
-  path: "/path/to/converters.log",
+  path: "/path/to/converters.log",# path to converters log. Create before run application!
   metadata_filter: [subsystem: :converters],
-  level: :error
+  level: :error # log lever, supported next levels [:debug, :info, :warn, :error]
