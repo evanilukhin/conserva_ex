@@ -94,6 +94,10 @@ defmodule Conserva.Router do
     send_resp(conn, 200, Poison.encode!(GenServer.call(ConvertersInfoServer, :get_convert_combinations)))
   end
 
+  get "/ping" do
+    send_resp(conn, 200, "")
+  end
+
   match _ do
     send_resp(conn, 404, "oops")
   end
